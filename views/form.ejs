@@ -1,0 +1,72 @@
+<%- include('header') %>
+
+<header class="header">
+  <h1 class="header__title"> <%= title %> </h1>
+</header>
+
+<form method="POST" action="/">
+  <div class="field<%= locals.isInvalid('name', errors) ? ' field--invalid' : '' %>">
+    <label for="name" class="field__label">Nafn*</label>
+    <input type="text" name="name" id="name" value="<%=name %>" class="field__input">
+  </div>
+  <div class="field<%= locals.isInvalid('nationalId', errors) ? ' field--invalid' : '' %>">
+    <label for="nationalId" class="field__label">Kennitala*</label>
+    <input type="text" name="nationalId" id="nationalId" value="<%= nationalId %>" class="field__input">
+  </div>
+  <div class="field<%= locals.isInvalid('comment', errors) ? ' field--invalid' : '' %>">
+    <label for="comment" class="field__label">Athugasemd:</label>
+    <textarea name="comment" id="comment" class="field__textarea"><%= comment %></textarea>
+  </div>
+  <div class="field--checkbox">
+    <% if (anonymous) { %>
+      <input type="checkbox" name="anonymous" id="anonymous" class="field--checkbox__input" checked>
+    <% } else { %>
+      <input type="checkbox" name="anonymous" id="anonymous" class="field--checkbox__input">
+    <% } %>
+    <label for="anonymous" class="field--checkbox__label">Ekki birta nafn á lista</label>
+  </div>
+
+  <% if (errors.length > 0) { %>
+    <h2 class="errors__title">Villur við undirskrift:</h2>
+    <ul class="errors">
+      <% errors.forEach((error) => { %>
+        <li class="error"><label for="<%= error.param %>"><%= error.msg %></label></li>
+      <% }); %>
+    </ul>
+  <% } %>
+
+  <div class="buttoncontainer">
+    <button class="buttoncontainer__button">Skrifa undir</button>
+  </div>
+</form>
+
+<h2 class="table__title"><%= listTitle %> </h2>
+
+<div class="signatures">
+  <% if (list.length === 0) { %>
+    <p class="table__subtitle">Engar undirskriftir.</p>
+  <% } %>
+
+  <table class="table">
+    <tr class="table__row">
+      <th class="table__header">Dags</th>
+      <th class="table__header">Nafn</th>
+      <th class="table__header">Athugasemd</th>
+    </tr>
+    <% list.forEach((signature) => { %>
+      <tr class="table__row">
+        <td class="table__column"><%= locals.setDate(signature.signed.toISOString()) %></td>
+        <td class="table__column">
+          <% if (signature.anonymous) { %>
+            Nafnlaus
+          <% } else { %>
+            <%= signature.name %>
+          <% } %>
+        </td>
+        <td class="table__column"><%= signature.comment %></td>
+      </tr>
+    <% }); %>
+  </table>
+</div>
+
+<%- include('footer') %>

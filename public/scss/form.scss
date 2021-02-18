@@ -1,0 +1,117 @@
+@import './config';
+
+.field {
+  display: flex;
+  flex-direction: column;
+  font-family: $font-heading;
+  margin-bottom: $gutter;
+
+  @media (min-width: $max-width / 2) {
+    flex-direction: row;
+  }
+
+  &__label {
+    font-size: 1.375rem;
+
+    @media (min-width: $max-width / 2) {
+      flex: 0 0 $max-width / 6;
+    }
+  }
+
+  &__input {
+    border: 1px solid $color-9;
+    border-radius: 3px;
+    max-width: $max-width - 300px;
+    padding: $gutter / 2;
+
+    @media (min-width: $max-width / 2) {
+      flex: 1;
+    }
+  }
+
+  &__textarea {
+    border: 1px solid $color-9;
+    border-radius: 3px;
+    max-width: $max-width - 300px;
+    min-height: 6rem;
+    padding: $gutter / 2;
+
+    @media (min-width: $max-width / 2) {
+      flex: 1;
+    }
+  }
+}
+
+.field--checkbox {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin-bottom: $gutter * 2;
+  padding: $gutter / 4;
+
+  &__label {
+    font-size: 1.375rem;
+  }
+
+  &__input {
+    border: 1px solid $color-3;
+    border-radius: 3px;
+    margin-right: $gutter / 2;
+    padding: $gutter / 2;
+  }
+}
+
+.field--invalid input {
+  background-color: $color-6;
+  border-color: $color-5;
+}
+
+.field--invalid textarea {
+  background-color: $color-6;
+  border-color: $color-5;
+}
+
+.buttoncontainer {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  &__button {
+    background-color: $color-7;
+    border: 1px solid $color-9;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: $font-heading;
+    font-size: 2rem;
+    max-width: 250px;
+    padding: $gutter / 2 $gutter * 1.5;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color $transition;
+
+    &:hover { /* stylelint-disable-line */
+      background-color: $color-8;
+    }
+  }
+}
+
+.errors {
+  display: table;
+  font-family: $font-heading;
+  margin: 0 auto $gutter * 2;
+
+  &__title {
+    font-family: $font-heading;
+    font-size: 1.2rem;
+    margin-bottom: $gutter;
+    text-align: center;
+  }
+}
+
+form::after {
+  border-bottom: 2px dotted $color-9;
+  content: '';
+  display: block;
+  margin: 2 * $gutter auto;
+  width: 100%;
+}
