@@ -1,0 +1,30 @@
+<section class="signatures">
+
+  <h2 class="table__title">Undirskriftir</h2>
+
+  <% if (list.length === 0) { %>
+    <p class="table__subtitle">Engar undirskriftir.</p>
+  <% } else { %>
+
+  <table class="table">
+    <tr class="table__row">
+      <th class="table__header">Dags</th>
+      <th class="table__header">Nafn</th>
+      <th class="table__header">Athugasemd</th>
+    </tr>
+    <% list.forEach((signature) => { %>
+      <tr class="table__row">
+        <td class="table__column"><%= locals.setDate(signature.signed.toISOString()) %></td>
+        <td class="table__column">
+          <% if (signature.anonymous) { %>
+            Nafnlaus
+          <% } else { %>
+            <%= signature.name %>
+          <% } %>
+        </td>
+        <td class="table__column"><%= signature.comment %></td>
+      </tr>
+    <% }); %>
+  </table>
+  <% } %>
+</section>

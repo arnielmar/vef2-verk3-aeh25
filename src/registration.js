@@ -1,23 +1,13 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
+import xss from 'xss';
 
 import { insert, select } from './db.js';
+import { catchErrors } from './utils.js';
 
 export const router = express.Router();
 
 const nationalIdPattern = '^[0-9]{6}-?[0-9]{4}$';
-
-/**
- * Higher-order function sem umlykur async middleware function með villumeðhöndlun.
- *
- * @param {function} fn - Middleware function sem grípa á villur fyrir
- * @returns {function} Middleware function með meðhöndlun
- */
-function catchErrors(fn) {
-  return (req, res, next) => {
-    fn(req, res, next).catch(next);
-  };
-}
 
 // Fylki af öllum validations fyrir undirskrift
 const validations = [
@@ -38,12 +28,17 @@ const validations = [
     .withMessage(('Athugasemd má ekki vera meira en 400 stafir')),
 ];
 
+const xssSanitizations = [
+  body('name').customSanitizer((v) => xss(v)),
+  body('nationalId').customSanitizer((v) => xss(v)),
+  body('comment').customSanitizer((v) => xss(v)),
+  body('anonymous').customSanitizer((v) => xss(v)),
+]
+
 // Fylki af öllum hreinsunum fyrir undirskrift
-const sanitazions = [
+const sanitizations = [
   body('name').trim().escape(),
-  body('nationalId').blacklist('-').escape(),
-  body('anonymous').trim().escape(),
-  body('comment').trim().escape(),
+  body('nationalId').blacklist('-'),
 ];
 
 /**
@@ -53,20 +48,20 @@ const sanitazions = [
  * @param {object} res Response hlutur
  * @returns {string} Form fyrir undirskrift
  */
-async function form(req, res) {
-  const list = await select();
-  const data = {
-    title: 'Undirskriftarlisti',
+async function index(req, res) {
+  const errors = [];
+  const formData = {
     name: '',
     nationalId: '',
     anonymous: '',
     comment: '',
-    errors: [],
-    listTitle: 'Undirskriftir',
-    list,
   };
 
-  res.render('form', data);
+  const list = await select();
+
+  res.render('index', {
+    errors, formData, list,
+  });
 }
 
 /**
@@ -88,25 +83,20 @@ async function showErrors(req, res, next) {
     } = {},
   } = req;
 
-  const list = await select();
-
-  const data = {
-    title: 'Undirskriftarlisti',
+  const formData = {
     name,
     nationalId,
-    anonymous,
     comment,
-    listTitle: 'Undirskriftir',
-    list,
+    anonymous,
   };
+
+  const list = await select();
 
   const validation = validationResult(req);
 
   if (!validation.isEmpty()) {
-    const errors = validation.array();
-    data.errors = errors;
-
-    return res.render('form', data);
+    const errors = validation.errors;
+    return res.render('index', { formData, errors, list});
   }
 
   return next();
@@ -137,17 +127,28 @@ async function formPost(req, res) {
     comment,
   };
 
-  await insert(data);
+  let success = true;
 
-  return res.redirect('/');
+  try {
+    success = await insert(data);
+  } catch (e) {
+    console.error(e);
+  }
+
+  if (success) {
+    return res.redirect('/');
+  }
+
+  return res.render('error', { title: 'Gat ekki skráð!', error: 'Hefur þú skrifað undir áður?' });
 }
 
-router.get('/', form);
+router.get('/', catchErrors(index));
 
 router.post(
   '/',
   validations,
-  showErrors,
-  sanitazions,
+  xssSanitizations,
+  catchErrors(showErrors),
+  sanitizations,
   catchErrors(formPost),
 );

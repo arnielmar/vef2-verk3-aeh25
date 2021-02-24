@@ -1,14 +1,22 @@
 import express from 'express';
+import session from 'express-session';
 import dotenv from 'dotenv';
 
 import { router as registrationRouter } from './registration.js';
-import { getDate } from './formatDate.js';
+import { getDate, isInvalid } from './utils.js';
 
 dotenv.config();
 
 const {
   PORT: port = 3000,
+  SESSION_SECRET: sessionSecret,
+  DATABASE_URL: connectionString,
 } = process.env;
+
+if (!connectionString || !sessionSecret) {
+  console.error('Vantar gögn í env');
+  process.exit(1);
+}
 
 const app = express();
 
@@ -19,29 +27,31 @@ app.set('view engine', 'ejs');
 
 app.use(express.static('public'));
 
-/**
- * Hjálparfall til að athuga hvort reitur sé gildur eða ekki.
- *
- * @param {string} field - Middleware sem grípa á villur fyrir
- * @param {array} errors - Fylki af villum frá express-validator pakkanum
- * @returns {boolean} 'true' ef field er í 'errors', 'false' annars
- */
-function isInvalid(field, errors) {
-  return Boolean(errors.find((i) => i.param === field));
-}
-
 app.locals.isInvalid = isInvalid;
 app.locals.setDate = getDate;
 
 app.use('/', registrationRouter);
 
+/**
+ * Middleware sem sér um 404 villur.
+ *
+ * @param {object} req Request hlutur
+ * @param {object} res Response hlutur
+ */
 function notFoundHandler(req, res) {
   res.status(404).render('error', { title: '404 villa', error: 'Úps! Þessi síða fannst ekki' });
 }
 
+/**
+ * Middleware sem sér um villumeðhöndlun.
+ *
+ * @param {object} error Error hlutur
+ * @param {object} req Request hlutur
+ * @param {object} res Response hlutur
+ */
 function errorHandler(error, req, res) {
   console.error(error);
-  res.status(500).render('error', { title: 'Villa', error });
+  res.status(500).render('error', { title: 'Villa kom upp' });
 }
 
 app.use(notFoundHandler);

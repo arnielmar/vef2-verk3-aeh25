@@ -13,6 +13,16 @@ if (!connectionString) {
   process.exit(1);
 }
 
+// Notum SSL tengingu við gagnagrunn ef við erum *ekki* í development mode, þ.e.a.s. á local vél
+const ssl = nodeEnv !== 'development' ? { rejectUnauthorized: false } : false;
+
+const pool = new pg.Pool({ connectionString, ssl });
+
+pool.on('error', (err) => {
+  console.error('Villa í tengingu við gagnagrunn, forrit hættir', err);
+  process.exit(-1);
+});
+
 /**
  * Framkvæmir SQL fyrirspurn á gagnagrunn sem keyrir á `DATABASE_URL`,
  * skilgreint í `.env`
@@ -22,26 +32,14 @@ if (!connectionString) {
  * @returns {object} Hlut með niðurstöðu af því að keyra fyrirspurn
  */
 export async function query(q, values = []) { /* eslint-disable-line */
-  const ssl = nodeEnv !== 'development' ? { rejectUnauthorized: false } : false;
-  const pool = new pg.Pool({ connectionString, ssl });
-
-  pool.on('error', (err) => {
-    console.error('Unexpected error on idle client', err);
-    process.exit(-1);
-  });
-
   const client = await pool.connect();
 
   try {
     const result = await client.query(q, values);
     return result;
-  } catch (e) {
-    console.error('Error in query', e);
   } finally {
     client.release();
   }
-
-  await pool.end();
 }
 
 /**
@@ -51,22 +49,42 @@ export async function query(q, values = []) { /* eslint-disable-line */
  * @returns {object} Hlut með niðurstöðu af því að keyra fyrirspurn
  */
 export async function insert(data) {
+  let success = true;
   const q = `INSERT INTO signatures
-            (name, nationalId, comment, anonymous)
+              (name, nationalId, comment, anonymous)
             VALUES
-            ($1, $2, $3, $4)`;
+              ($1, $2, $3, $4)`;
   const values = [data.name, data.nationalId, data.comment, data.anon];
 
-  return query(q, values);
+  try {
+    await query(q, values);
+  } catch (e) {
+    console.error('Villa við innsetningu gagna.', e);
+    success = false;
+  }
+  return success;
 }
 
 /**
- * Sækir allar undirskriftir.
+ * Sækir allar undirskriftir úr gagnagrunn.
  *
- * @returns {array} Fylki af öllum umsóknum.
+ * @returns {Promise<Array<list>>} Promise, sem er leyst sem fylki af öllum undirskriftum.
  */
 export async function select() {
-  const q = 'SELECT * FROM signatures ORDER BY id';
-  const result = await query(q);
-  return result.rows;
+  let result = [];
+  const q = 'SELECT name, nationalId, comment, anonymous, signed FROM signatures ORDER BY signed DESC';
+  try {
+    const queryResult = await query(q);
+    if (queryResult && queryResult.rows) {
+      result = queryResult.rows;
+    }
+  } catch (e) {
+    console.error('Villa að ná í undirskriftir', e);
+  }
+  return result;
+}
+
+// Hjálparfall til að fjarlægja pg úr event loop-unni.
+export async function end() {
+  await pool.end();
 }
