@@ -1,4 +1,7 @@
 TRUNCATE TABLE signatures; -- tæmir töflu!
+TRUNCATE TABLE users;
+INSERT INTO users (username, password) VALUES ('arnielmar', '$2a$11$pgj3.zySyFOvIQEpD7W6Aund1Tw.BFarXxgLJxLbrzIv/4Nteisii');
+INSERT INTO users (username, password) VALUES ('jonjonsson', '$2a$11$pgj3.zySyFOvIQEpD7W6Aund1Tw.BFarXxgLJxLbrzIv/4Nteisii');
 INSERT INTO signatures (name, nationalId, comment, anonymous) VALUES ('Andri Már', '0000000000', 'x', false);
 INSERT INTO signatures (name, nationalId, comment, anonymous) VALUES ('Andri Þór', '0000000001', '', false);
 INSERT INTO signatures (name, nationalId, comment, anonymous) VALUES ('Anna Guðrún', '0000000002', '', false);

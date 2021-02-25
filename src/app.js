@@ -3,6 +3,7 @@ import session from 'express-session';
 import dotenv from 'dotenv';
 
 import { router as registrationRouter } from './registration.js';
+import { passport } from './login.js';
 import { getDate, isInvalid } from './utils.js';
 
 dotenv.config();
@@ -22,6 +23,16 @@ const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 
+app.use(session({
+  secret: sessionSecret,
+  resave: false,
+  saveUninitialized: false,
+  maxAge: 30 * 24 * 60 * 1000,  // 30 dagar
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.set('views', 'views');
 app.set('view engine', 'ejs');
 
@@ -29,6 +40,16 @@ app.use(express.static('public'));
 
 app.locals.isInvalid = isInvalid;
 app.locals.setDate = getDate;
+
+// Gera user hlut aðgengilegan fyrir view
+app.use((req, res, next) => {
+  if (req.isAuthenticated()) {
+    // getum núna notað user í viewum
+    res.locals.user = req.user;
+  }
+
+  next();
+});
 
 app.use('/', registrationRouter);
 
