@@ -3,8 +3,10 @@ import session from 'express-session';
 import dotenv from 'dotenv';
 
 import { router as registrationRouter } from './registration.js';
-import { passport } from './login.js';
+import { router as adminRouter } from './admin.js';
+import passport from './login.js';
 import { getDate, isInvalid } from './utils.js';
+import { countSignatures } from './db.js';
 
 dotenv.config();
 
@@ -40,6 +42,7 @@ app.use(express.static('public'));
 
 app.locals.isInvalid = isInvalid;
 app.locals.setDate = getDate;
+app.locals.countSignatures = countSignatures;
 
 // Gera user hlut aðgengilegan fyrir view
 app.use((req, res, next) => {
@@ -51,7 +54,41 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/admin/login', (req, res) => {
+  if (req.isAuthenticated()) {
+    return res.redirect('/admin');
+  }
+
+  let message = '';
+
+  if (req.session.messages && req.session.messages.length > 0) {
+    message = req.session.messages.join(', ');
+    req.session.messages = [];
+  }
+
+  return res.render('login', { message });
+});
+
+app.post(
+  '/admin/login',
+
+  passport.authenticate('local', {
+    failureMessage: 'Notandi eða lykilorð vitlaust.',
+    failureRedirect: '/admin/login',
+  }),
+
+  (req, res) => {
+    res.redirect('/admin');
+  },
+);
+
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/');
+});
+
 app.use('/', registrationRouter);
+app.use('/admin', adminRouter);
 
 /**
  * Middleware sem sér um 404 villur.

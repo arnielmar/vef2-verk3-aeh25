@@ -84,18 +84,17 @@ export async function select() {
   return result;
 }
 
-export async function count() {
-  let result = 0;
+export async function countSignatures() {
   const q = 'SELECT COUNT(*) AS count FROM signatures';
   try {
-    const queryResult = await query(q);
-    if (queryResult) {
-      result = queryResult;
+    const result = await query(q);
+    if (result.rowCount === 1) {
+      return result.rows[0].count;
     }
   } catch (e) {
-      console.error('Villa að ná í fjölda undirskrifta', e);
+      console.error('Villa að ná í fjölda', e);
+      return null;
   }
-  return result;
 }
 
 // Hjálparfall til að fjarlægja pg úr event loop-unni.

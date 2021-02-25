@@ -1,0 +1,28 @@
+<%- include('header') %>
+
+<header class="header">
+  <h1 class="header__title">Innskráning</h1>
+</header>
+
+<form method="POST" action="/admin/login" enctype="application/x-www-form-urlencoded">
+  <div class="field">
+    <label for="username" class="field__label">Notendanafn:</label>
+    <input type="text" name="username" class="field__input">
+  </div>
+  <div class="field">
+    <label for="password" class="field__label">Lykilorð:</label>
+    <input type="password" name="password" class="field__input">
+  </div>
+
+  <% if (message) { %>
+    <div class="errors">
+      <p><%= message %></p>
+    </div>
+  <% } %>
+
+  <div class="buttoncontainer">
+    <button class="buttoncontainer__button">Innskrá</button>
+  </div>
+</form>
+
+<%- include('footer') %>

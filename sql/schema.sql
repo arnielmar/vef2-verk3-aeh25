@@ -13,7 +13,5 @@ CREATE TABLE IF NOT EXISTS signatures(
 CREATE TABLE IF NOT EXISTS users(
   id serial primary key,
   username character varying(255) unique not null,
-  password character varying(255) not null,
-  created timestamp with time zone not null default current_timestamp,
-  updated timestamp with time zone not null default current_timestamp
+  password character varying(255) not null
 );

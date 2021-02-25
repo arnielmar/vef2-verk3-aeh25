@@ -5,7 +5,7 @@
   <% if (list.length === 0) { %>
     <p class="table__subtitle">Engar undirskriftir.</p>
   <% } else { %>
-    <p class="table__subtitle">Fjöldi undirskrifta: </p>
+    <p class="table__subtitle">Fjöldi undirskrifta: <%= locals.countSignatures() %> </p>
 
     <table class="table">
       <tr class="table__row">
