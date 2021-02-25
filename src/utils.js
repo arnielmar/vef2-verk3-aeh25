@@ -22,6 +22,22 @@ export function isInvalid(field, errors) {
 }
 
 /**
+ * Athugar hvort notandi sé innskráður og hleypir okkur þá áfram,
+ * annars sendur áfram á '/admin'.
+ *
+ * @param {object} req Request hlutur
+ * @param {object} res Response hlutur
+ * @param {function} next Næsta middleware
+ */
+export function ensureLoggedIn(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  return res.redirect('/login');
+}
+
+/**
  * Hjálparfall til að parse-a dagsetningu.
  *
  * @param {Object} date Dagsetning undirskriftar
