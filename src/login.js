@@ -21,7 +21,7 @@ async function strat(username, password, done) {
       return done(null, false);
     }
 
-    const result = await comparePasswords(password, user.password);
+    const result = await comparePasswords(password, user);
     return done(null, result);
   } catch (e) {
     console.error(e);
