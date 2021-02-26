@@ -70,11 +70,11 @@ export async function insert(data) {
  *
  * @returns {Promise<Array<list>>} Promise, sem er leyst sem fylki af öllum undirskriftum.
  */
-export async function select() {
+export async function select(offset = 0, limit = 50) {
   let result = [];
-  const q = 'SELECT * FROM signatures ORDER BY signed DESC;';
+  const q = 'SELECT * FROM signatures ORDER BY signed DESC OFFSET $1 LIMIT $2;';
   try {
-    const queryResult = await query(q);
+    const queryResult = await query(q, [offset, limit]);
     if (queryResult && queryResult.rows) {
       result = queryResult.rows;
     }

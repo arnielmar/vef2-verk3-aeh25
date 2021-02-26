@@ -81,9 +81,9 @@ app.post(
   },
 );
 
-app.get('/logout', (req, res) => {
+app.get('/admin/logout', (req, res) => {
   req.logout();
-  res.redirect('/');
+  res.redirect('/admin');
 });
 
 app.use('/', registrationRouter);
