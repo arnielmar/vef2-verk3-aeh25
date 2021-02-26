@@ -1,78 +1,62 @@
-import pg from 'pg';
-import dotenv from 'dotenv';
-import util from 'util';
-import fs from 'fs';
+import { readFile } from 'fs/promises';
+import faker from 'faker';
 
-dotenv.config();
-const readFileAsync = util.promisify(fs.readFile);
+import { query, end } from './db.js';
 
-const {
-  DATABASE_URL: connectionString,
-  NODE_ENV: nodeEnv = 'development',
-} = process.env;
+const schemaFile = './sql/schema.sql';
 
-if (!connectionString) {
-  console.error('Vantar DATABASE_URL');
-  process.exit(1);
-}
+async function mock(n) {
+  const nationalIds = new Set();
 
-/**
- * Framkvæmir SQL fyrirspurn á gagnagrunn sem keyrir á `DATABASE_URL`,
- * skilgreint í `.env`
- *
- * @param {string} q Query til að keyra
- * @param {array} values Fylki af gildum fyrir query
- * @returns {object} Hlut með niðurstöðu af því að keyra fyrirspurn
- */
-async function query(q, values = []) { /* eslint-disable-line */
-  const ssl = nodeEnv !== 'development' ? { rejectUnauthorized: false } : false;
-  const pool = new pg.Pool({ connectionString, ssl });
+  for (let i = 0; i < n; i++) {
+    const name = faker.name.findName();
+    const nationalId = Math.random().toString().slice(2, 12);
+    if (nationalIds.has(nationalId)) {
+      continue;
+    }
+    nationalIds.add(nationalId);
+    let comment = '';
+    if (Math.random() < 0.5) {
+      comment = faker.lorem.sentence();
+    }
+    let anonymous = false;
+    if (Math.random() < 0.5) {
+      anonymous = true;
+    }
+    const dateSigned = faker.date.recent(14);
 
-  pool.on('error', (err) => {
-    console.error('Unexpected error on idle client', err);
-    process.exit(-1);
-  });
+    const q = `
+      INSERT INTO signatures (name, nationalId, comment, anonymous, signed)
+      VALUES ($1, $2, $3, $4, $5);`;
 
-  const client = await pool.connect();
-
-  try {
-    const result = await client.query(q, values);
-    return result;
-  } catch (e) {
-    console.error('Error in query', e);
-  } finally {
-    client.release();
+    await query(q, [name, nationalId, comment, anonymous, dateSigned]);
   }
 
-  await pool.end();
+  const q2 = `
+    INSERT INTO users (username, password)
+    VALUES ('admin', '$2a$11$pgj3.zySyFOvIQEpD7W6Aund1Tw.BFarXxgLJxLbrzIv/4Nteisii');`;
+  const q3 = `
+    INSERT INTO users (username, password)
+    VALUES ('jonjonsson', '$2a$11$pgj3.zySyFOvIQEpD7W6Aund1Tw.BFarXxgLJxLbrzIv/4Nteisii');`;
+
+  await query(q2);
+  await query(q3);
 }
 
-async function main() {
-  console.info(`Set upp gagnagrunn á ${connectionString}`);
-  // droppa töflu ef til
-  await query('DROP TABLE IF EXISTS applications');
-  console.info('Töflu eytt');
+async function create() {
+  const data = await readFile(schemaFile);
 
-  // búa til töflu út frá skema
-  try {
-    const createTable = await readFileAsync('./sql/schema.sql');
-    await query(createTable.toString('utf8'));
-    console.info('Tafla búin til');
-  } catch (e) {
-    console.error('Villa við að búa til töflu:', e.message);
-    return;
-  }
+  await query(data.toString('utf-8'));
 
-  // bæta færslum við töflu
-  try {
-    const insert = await readFileAsync('./sql/fake.sql');
-    await query(insert.toString('utf8'));
-    console.info('Gögnum bætt við');
-  } catch (e) {
-    console.error('Villa við að bæta gögnum við:', e.message);
-  }
+  console.info('Schema created');
+
+  await mock(500);
+
+  console.info('Mock data inserted');
+
+  await end();
 }
 
-main().catch((err) => {
-  console.error(err);
+create().catch((e) => {
+  console.error('Error creating schema', e);
 });
