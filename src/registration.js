@@ -78,6 +78,8 @@ async function index(req, res) {
       },
     },
     items: list,
+    offset,
+    limit,
   };
 
   if (offset > 0) {
@@ -91,8 +93,6 @@ async function index(req, res) {
       href: `http://localhost:${port}/?offset=${Number(offset) + limit}&limit=${limit}`,
     };
   }
-
-  console.log(result);
 
   res.render('index', {
     errors,

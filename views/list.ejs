@@ -38,4 +38,14 @@
       <% }); %>
     </table>
   <% } %>
+
+  <div>
+    <% if (result._links.prev) { %>
+      <p><a href="<%= result._links.prev.href %> ">Fyrri síða</a></p>
+    <% } %>
+    <p>Síða <%= result.offset/50 + 1 %> af <%= Math.ceil(signaturesCount/50) %> </p>
+    <% if (result._links.next) { %>
+      <p><a href="<%= result._links.next.href %> ">Næsta síða</a></p>
+    <% } %>
+  </div>
 </section>

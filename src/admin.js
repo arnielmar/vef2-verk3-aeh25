@@ -26,6 +26,8 @@ async function index(req, res) {
       },
     },
     items: list,
+    offset,
+    limit,
   };
 
   if (offset > 0) {
