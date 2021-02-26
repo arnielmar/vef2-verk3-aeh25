@@ -2,7 +2,7 @@ import express from 'express';
 import { body, validationResult } from 'express-validator';
 import xss from 'xss';
 
-import { insert, select } from './db.js';
+import { query, insert, select } from './db.js';
 import { catchErrors } from './utils.js';
 
 export const router = express.Router();
@@ -58,9 +58,13 @@ async function index(req, res) {
   };
 
   const list = await select();
+  const signaturesCount = await query('SELECT COUNT(*) AS count FROM signatures;');
 
   res.render('index', {
-    errors, formData, list,
+    errors,
+    formData,
+    list,
+    signaturesCount: signaturesCount.rows[0].count,
   });
 }
 

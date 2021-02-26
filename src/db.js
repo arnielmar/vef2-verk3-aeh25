@@ -53,7 +53,7 @@ export async function insert(data) {
   const q = `INSERT INTO signatures
               (name, nationalId, comment, anonymous)
             VALUES
-              ($1, $2, $3, $4)`;
+              ($1, $2, $3, $4);`;
   const values = [data.name, data.nationalId, data.comment, data.anon];
 
   try {
@@ -72,7 +72,7 @@ export async function insert(data) {
  */
 export async function select() {
   let result = [];
-  const q = 'SELECT name, nationalId, comment, anonymous, signed FROM signatures ORDER BY signed DESC';
+  const q = 'SELECT * FROM signatures ORDER BY signed DESC;';
   try {
     const queryResult = await query(q);
     if (queryResult && queryResult.rows) {
@@ -84,17 +84,10 @@ export async function select() {
   return result;
 }
 
-export async function countSignatures() {
-  const q = 'SELECT COUNT(*) AS count FROM signatures';
-  try {
-    const result = await query(q);
-    if (result.rowCount === 1) {
-      return result.rows[0].count;
-    }
-  } catch (e) {
-      console.error('Villa að ná í fjölda', e);
-      return null;
-  }
+export async function deleteRow(id) {
+  const q = 'DELETE FROM signatures WHERE id = $1;';
+
+  return query(q, id);
 }
 
 // Hjálparfall til að fjarlægja pg úr event loop-unni.

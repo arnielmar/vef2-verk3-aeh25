@@ -6,7 +6,6 @@ import { router as registrationRouter } from './registration.js';
 import { router as adminRouter } from './admin.js';
 import passport from './login.js';
 import { getDate, isInvalid } from './utils.js';
-import { countSignatures } from './db.js';
 
 dotenv.config();
 
@@ -42,7 +41,7 @@ app.use(express.static('public'));
 
 app.locals.isInvalid = isInvalid;
 app.locals.setDate = getDate;
-app.locals.countSignatures = countSignatures;
+//app.locals.countSignatures = countSignatures;
 
 // Gera user hlut aðgengilegan fyrir view
 app.use((req, res, next) => {

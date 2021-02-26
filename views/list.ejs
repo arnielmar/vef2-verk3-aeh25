@@ -5,13 +5,16 @@
   <% if (list.length === 0) { %>
     <p class="table__subtitle">Engar undirskriftir.</p>
   <% } else { %>
-    <p class="table__subtitle">Fjöldi undirskrifta: <%= locals.countSignatures() %> </p>
+    <p class="table__subtitle">Fjöldi undirskrifta: <%= signaturesCount %> </p>
 
     <table class="table">
       <tr class="table__row">
         <th class="table__header">Dags</th>
         <th class="table__header">Nafn</th>
         <th class="table__header">Athugasemd</th>
+        <% if (locals.user) { %>
+          <th class="table__header">Eyða</th>
+        <% } %>
       </tr>
       <% list.forEach((signature) => { %>
         <tr class="table__row">
@@ -24,6 +27,13 @@
             <% } %>
           </td>
           <td class="table__column"><%= signature.comment %></td>
+          <% if (locals.user) { %>
+            <form method="POST" action="/admin/delete/<%= signature.id %>">
+              <td class="table__column">
+                <button>Eyða</button>
+              </td>
+            </form>
+          <% } %>
         </tr>
       <% }); %>
     </table>
