@@ -13,7 +13,7 @@ async function index(req, res) {
   const list = await select(offset, limit);
 
   const result = {
-    _links: {
+    links: {
       self: {
         href: `/admin/?offset=${offset}&limit=${limit}`,
       },
@@ -24,13 +24,13 @@ async function index(req, res) {
   };
 
   if (offset > 0) {
-    result._links.prev = {
+    result.links.prev = {
       href: `/admin/?offset=${offset - limit}&limit=${limit}`,
     };
   }
 
   if (list.length <= limit) {
-    result._links.next = {
+    result.links.next = {
       href: `/admin/?offset=${Number(offset) + limit}&limit=${limit}`,
     };
   }

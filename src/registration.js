@@ -33,7 +33,7 @@ const xssSanitizations = [
   body('nationalId').customSanitizer((v) => xss(v)),
   body('comment').customSanitizer((v) => xss(v)),
   body('anonymous').customSanitizer((v) => xss(v)),
-]
+];
 
 // Fylki af öllum hreinsunum fyrir undirskrift
 const sanitizations = [
@@ -65,7 +65,7 @@ async function index(req, res) {
   const list = await select(offset, limit);
 
   const result = {
-    _links: {
+    links: {
       self: {
         href: `/?offset=${offset}&limit=${limit}`,
       },
@@ -76,13 +76,13 @@ async function index(req, res) {
   };
 
   if (offset > 0) {
-    result._links.prev = {
+    result.links.prev = {
       href: `/?offset=${offset - limit}&limit=${limit}`,
     };
   }
 
   if (list.length <= limit) {
-    result._links.next = {
+    result.links.next = {
       href: `/?offset=${Number(offset) + limit}&limit=${limit}`,
     };
   }
@@ -127,8 +127,10 @@ async function showErrors(req, res, next) {
   const validation = validationResult(req);
 
   if (!validation.isEmpty()) {
-    const errors = validation.errors;
-    return res.render('index', { formData, errors, list});
+    const {
+      errors,
+    } = validation;
+    return res.render('index', { formData, errors, list });
   }
 
   return next();

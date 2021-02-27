@@ -43,14 +43,14 @@
 
   <div class="paging">
     <p class="paging__prev">
-      <% if (result._links.prev) { %>
-        <a href="<%= result._links.prev.href %> ">Fyrri síða</a>
+      <% if (result.links.prev) { %>
+        <a href="<%= result.links.prev.href %> ">Fyrri síða</a>
       <% } %>
     </p>
     <p class="paging__subtitle">Síða <%= result.offset/50 + 1 %> af <%= Math.ceil(signaturesCount/50) %> </p>
     <p class="paging__next">
-      <% if (result._links.next) { %>
-        <a href="<%= result._links.next.href %> ">Næsta síða</a>
+      <% if (result.links.next) { %>
+        <a href="<%= result.links.next.href %> ">Næsta síða</a>
       <% } %>
     </p>
   </div>

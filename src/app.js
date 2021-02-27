@@ -28,7 +28,7 @@ app.use(session({
   secret: sessionSecret,
   resave: false,
   saveUninitialized: false,
-  maxAge: 30 * 24 * 60 * 1000,  // 30 dagar
+  maxAge: 30 * 24 * 60 * 1000, // 30 dagar
 }));
 
 app.use(passport.initialize());
@@ -41,7 +41,6 @@ app.use(express.static('public'));
 
 app.locals.isInvalid = isInvalid;
 app.locals.setDate = getDate;
-//app.locals.countSignatures = countSignatures;
 
 // Gera user hlut aðgengilegan fyrir view
 app.use((req, res, next) => {
