@@ -1,16 +1,9 @@
 import express from 'express';
-import dotenv from 'dotenv';
 
 import { query, select, deleteRow } from './db.js';
 import { catchErrors, ensureLoggedIn } from './utils.js';
 
-dotenv.config();
-
 export const router = express.Router();
-
-const {
-  PORT: port = 3000,
-} = process.env;
 
 async function index(req, res) {
   let { offset = 0, limit = 50 } = req.query;
@@ -22,7 +15,7 @@ async function index(req, res) {
   const result = {
     _links: {
       self: {
-        href: `http://localhost:${port}/admin/?offset=${offset}&limit=${limit}`,
+        href: `/admin/?offset=${offset}&limit=${limit}`,
       },
     },
     items: list,
@@ -32,13 +25,13 @@ async function index(req, res) {
 
   if (offset > 0) {
     result._links.prev = {
-      href: `http://localhost:${port}/admin/?offset=${offset - limit}&limit=${limit}`,
+      href: `/admin/?offset=${offset - limit}&limit=${limit}`,
     };
   }
 
   if (list.length <= limit) {
     result._links.next = {
-      href: `http://localhost:${port}/admin/?offset=${Number(offset) + limit}&limit=${limit}`,
+      href: `/admin/?offset=${Number(offset) + limit}&limit=${limit}`,
     };
   }
 

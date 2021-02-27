@@ -1,18 +1,11 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import xss from 'xss';
-import dotenv from 'dotenv';
 
 import { query, insert, select } from './db.js';
 import { catchErrors } from './utils.js';
 
-dotenv.config();
-
 export const router = express.Router();
-
-const {
-  PORT: port = 3000,
-} = process.env;
 
 const nationalIdPattern = '^[0-9]{6}-?[0-9]{4}$';
 
@@ -74,7 +67,7 @@ async function index(req, res) {
   const result = {
     _links: {
       self: {
-        href: `http://localhost:${port}/?offset=${offset}&limit=${limit}`,
+        href: `/?offset=${offset}&limit=${limit}`,
       },
     },
     items: list,
@@ -84,13 +77,13 @@ async function index(req, res) {
 
   if (offset > 0) {
     result._links.prev = {
-      href: `http://localhost:${port}/?offset=${offset - limit}&limit=${limit}`,
+      href: `/?offset=${offset - limit}&limit=${limit}`,
     };
   }
 
   if (list.length <= limit) {
     result._links.next = {
-      href: `http://localhost:${port}/?offset=${Number(offset) + limit}&limit=${limit}`,
+      href: `/?offset=${Number(offset) + limit}&limit=${limit}`,
     };
   }
 
