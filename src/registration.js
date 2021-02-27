@@ -87,6 +87,10 @@ async function index(req, res) {
     };
   }
 
+  if (offset + limit >= signaturesCount.rows[0].count) {
+    result.links.next = null;
+  }
+
   res.render('index', {
     errors,
     formData,
