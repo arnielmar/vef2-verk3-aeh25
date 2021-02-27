@@ -30,7 +30,9 @@
           <% if (locals.user) { %>
             <form method="POST" action="/admin/delete/<%= signature.id %>">
               <td class="table__column">
-                <button>Eyða</button>
+                <div class="tablebuttoncontainer">
+                  <button class="tablebuttoncontainer__button">Eyða</button>
+                </div>
               </td>
             </form>
           <% } %>
@@ -39,13 +41,17 @@
     </table>
   <% } %>
 
-  <div>
-    <% if (result._links.prev) { %>
-      <p><a href="<%= result._links.prev.href %> ">Fyrri síða</a></p>
-    <% } %>
-    <p>Síða <%= result.offset/50 + 1 %> af <%= Math.ceil(signaturesCount/50) %> </p>
-    <% if (result._links.next) { %>
-      <p><a href="<%= result._links.next.href %> ">Næsta síða</a></p>
-    <% } %>
+  <div class="paging">
+    <p class="paging__prev">
+      <% if (result._links.prev) { %>
+        <a href="<%= result._links.prev.href %> ">Fyrri síða</a>
+      <% } %>
+    </p>
+    <p class="paging__subtitle">Síða <%= result.offset/50 + 1 %> af <%= Math.ceil(signaturesCount/50) %> </p>
+    <p class="paging__next">
+      <% if (result._links.next) { %>
+        <a href="<%= result._links.next.href %> ">Næsta síða</a>
+      <% } %>
+    </p>
   </div>
 </section>
