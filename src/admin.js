@@ -35,6 +35,10 @@ async function index(req, res) {
     };
   }
 
+  if (offset + limit >= signaturesCount.rows[0].count) {
+    result.links.next = null;
+  }
+
   return res.render('admin', {
     list,
     signaturesCount: signaturesCount.rows[0].count,
