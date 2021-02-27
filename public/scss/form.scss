@@ -108,7 +108,7 @@
   }
 }
 
-form::after {
+.signatureform::after {
   border-bottom: 2px dotted $color-9;
   content: '';
   display: block;
